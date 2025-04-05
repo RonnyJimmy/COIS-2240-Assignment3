@@ -2,6 +2,7 @@ import java.util.List;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.io.*;
+import java.time.format.DateTimeParseException;
 
 public class RentalSystem {
 	private static RentalSystem instance;
@@ -9,7 +10,9 @@ public class RentalSystem {
     private List<Customer> customers = new ArrayList<>();
     private RentalHistory rentalHistory = new RentalHistory();
 
-    private RentalSystem() {}
+    private RentalSystem() {
+    	 loadData();
+    }
     
     public static RentalSystem getInstance() {
         if (instance == null) {
@@ -18,6 +21,111 @@ public class RentalSystem {
         return instance;
     }
 
+    private void loadData() {
+        loadVehicles();
+        loadCustomers();
+        loadRentalRecords();
+    }
+
+    private void loadVehicles() {
+        File file = new File("vehicles.txt");
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length < 6) continue;
+
+                String className = parts[0];
+                String licensePlate = "null".equals(parts[1]) ? null : parts[1];
+                String make = parts[2];
+                String model = parts[3];
+                int year = Integer.parseInt(parts[4]);
+                Vehicle.VehicleStatus status = Vehicle.VehicleStatus.valueOf(parts[5]);
+
+                Vehicle vehicle = null;
+                switch (className) {
+                    case "Car":
+                        if (parts.length < 7) continue;
+                        vehicle = new Car(make, model, year, Integer.parseInt(parts[6]));
+                        break;
+                    case "SportCar":
+                        if (parts.length < 9) continue;
+                        vehicle = new SportCar(make, model, year,
+                                Integer.parseInt(parts[6]),
+                                Integer.parseInt(parts[7]),
+                                Boolean.parseBoolean(parts[8]));
+                        break;
+                    case "Motorcycle":
+                        if (parts.length < 7) continue;
+                        vehicle = new Motorcycle(make, model, year,
+                                Boolean.parseBoolean(parts[6]));
+                        break;
+                    case "Truck":
+                        if (parts.length < 7) continue;
+                        vehicle = new Truck(make, model, year,
+                                Double.parseDouble(parts[6]));
+                        break;
+                    default:
+                        continue;
+                }
+
+                if (vehicle != null) {
+                    vehicle.setLicensePlate(licensePlate);
+                    vehicle.setStatus(status);
+                    vehicles.add(vehicle);
+                }
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadCustomers() {
+        File file = new File("customers.txt");
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length < 2) continue;
+                int id = Integer.parseInt(parts[0]);
+                customers.add(new Customer(id, parts[1]));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadRentalRecords() {
+        File file = new File("rentalrecords.txt");
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length < 5) continue;
+
+                String recordType = parts[0];
+                String licensePlate = parts[1];
+                int customerId = Integer.parseInt(parts[2]);
+                LocalDate date = LocalDate.parse(parts[3]);
+                double amount = Double.parseDouble(parts[4]);
+
+                Vehicle vehicle = findVehicleByPlate(licensePlate);
+                Customer customer = findCustomerById(String.valueOf(customerId));
+
+                if (vehicle != null && customer != null) {
+                    rentalHistory.addRecord(new RentalRecord(vehicle, customer, date, amount, recordType));
+                }
+            }
+        } catch (IOException | DateTimeParseException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
     public void addVehicle(Vehicle vehicle) {
         vehicles.add(vehicle);
         saveVehicle(vehicle);
@@ -74,10 +182,10 @@ public class RentalSystem {
             vehicle.setStatus(Vehicle.VehicleStatus.RENTED);
             RentalRecord record = new RentalRecord(vehicle, customer, date, amount, "RENT");
             rentalHistory.addRecord(record);
-            saveRecord(record); 
+            saveRecord(record);
             System.out.println("Vehicle rented to " + customer.getCustomerName());
         } else {
-            System.out.println("Vehicle is not available for renting.");
+            System.out.println("Vehicle is not available.");
         }
     }
 
@@ -86,7 +194,7 @@ public class RentalSystem {
             vehicle.setStatus(Vehicle.VehicleStatus.AVAILABLE);
             RentalRecord record = new RentalRecord(vehicle, customer, date, extraFees, "RETURN");
             rentalHistory.addRecord(record);
-            saveRecord(record); 
+            saveRecord(record);
             System.out.println("Vehicle returned by " + customer.getCustomerName());
         } else {
             System.out.println("Vehicle is not rented.");

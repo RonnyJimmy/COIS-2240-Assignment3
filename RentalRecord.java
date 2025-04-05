@@ -14,6 +14,17 @@ public class RentalRecord {
         this.totalAmount = totalAmount;
         this.recordType = recordType;
     }
+    public LocalDate getRecordDate() {
+        return recordDate;
+    }
+
+    public double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public String getRecordType() {
+        return recordType;
+    }
 
     public Customer getCustomer(){
     	return customer;

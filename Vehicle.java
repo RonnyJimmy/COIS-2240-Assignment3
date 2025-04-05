@@ -8,20 +8,20 @@ public abstract class Vehicle {
     public enum VehicleStatus { AVAILABLE, RESERVED, RENTED, MAINTENANCE, OUTOFSERVICE }
 
     public Vehicle(String make, String model, int year) {
-        this.make = capitalize(make);
-        this.model = capitalize(model);
+    	if (make == null || make.isEmpty())
+    		this.make = null;
+    	else
+    		this.make = make.substring(0, 1).toUpperCase() + make.substring(1).toLowerCase();
+    	
+    	if (model == null || model.isEmpty())
+    		this.model = null;
+    	else
+    		this.model = model.substring(0, 1).toUpperCase() + model.substring(1).toLowerCase();
+    	
         this.year = year;
         this.status = VehicleStatus.AVAILABLE;
         this.licensePlate = null;
     }
-
-    private String capitalize(String input) {
-        if (input == null || input.isEmpty()) {
-            return null;
-        }
-        return input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
-    }
-
 
     public Vehicle() {
         this(null, null, 0);

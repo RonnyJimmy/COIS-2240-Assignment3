@@ -102,16 +102,31 @@ public class RentalSystem {
         return instance;
     }
     
-    public void addVehicle(Vehicle vehicle) {
+    public boolean addVehicle(Vehicle vehicle) {
+        String plate = vehicle.getLicensePlate();
+        if (plate == null || plate.isEmpty()) {
+            System.out.println("Error: Vehicle license plate cannot be empty.");
+            return false;
+        }
+        if (findVehicleByPlate(plate) != null) {
+            System.out.println("Error: Vehicle with license plate '" + plate + "' already exists.");
+            return false;
+        }
         vehicles.add(vehicle);
         saveVehicle(vehicle);
+        return true;
     }
 
-    public void addCustomer(Customer customer) {
+    public boolean addCustomer(Customer customer) {
+        int id = customer.getCustomerId();
+        if (findCustomerById(id) != null) {
+            System.out.println("Error: Customer with ID '" + id + "' already exists.");
+            return false;
+        }
         customers.add(customer);
         saveCustomer(customer);
+        return true;
     }
-    
     private void saveVehicle(Vehicle vehicle) {
         try (PrintWriter out = new PrintWriter(new FileWriter("vehicles.txt", true))) {
             String type = "Vehicle";

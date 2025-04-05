@@ -9,6 +9,17 @@ public class RentalSystem {
     private List<Vehicle> vehicles = new ArrayList<>();
     private List<Customer> customers = new ArrayList<>();
     private RentalHistory rentalHistory = new RentalHistory();
+    public List<Vehicle> getVehicles() {
+        return vehicles;
+    }
+
+    public List<Customer> getCustomers() {
+        return customers;
+    }
+
+    public RentalHistory getRentalHistory() {
+        return rentalHistory;
+    }
 
     private RentalSystem() {
     	 loadData();

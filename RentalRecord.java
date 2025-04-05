@@ -5,7 +5,7 @@ public class RentalRecord {
     private Customer customer;
     private LocalDate recordDate;
     private double totalAmount;
-    private String recordType; // "RENT" or "RETURN"
+    private String recordType; 
 
     public RentalRecord(Vehicle vehicle, Customer customer, LocalDate recordDate, double totalAmount, String recordType) {
         this.vehicle = vehicle;

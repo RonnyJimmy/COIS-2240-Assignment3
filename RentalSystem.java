@@ -2,6 +2,7 @@ import java.util.List;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.io.*;
+import java.time.format.DateTimeParseException;
 
 public class RentalSystem {
 	private static RentalSystem instance;
@@ -9,8 +10,91 @@ public class RentalSystem {
     private List<Customer> customers = new ArrayList<>();
     private RentalHistory rentalHistory = new RentalHistory();
 
-    private RentalSystem() {}
-    
+    private RentalSystem() {
+    	loadData();
+    }
+    private void loadData() {
+        loadVehicles();
+        loadCustomers();
+        loadRentalRecords();
+    }
+    private void loadVehicles() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("vehicles.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length != 5) continue;
+
+                String plate = parts[0];
+                String make = parts[1];
+                String model = parts[2];
+                int year = Integer.parseInt(parts[3]);
+                String type = parts[4];
+
+                Vehicle vehicle = createVehicle(type, make, model, year);
+                if (vehicle != null) {
+                    vehicle.setLicensePlate(plate);
+                    vehicles.add(vehicle);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No existing vehicle data found.");
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error loading vehicles: " + e.getMessage());
+        }
+    }
+    private Vehicle createVehicle(String type, String make, String model, int year) {
+        switch (type) {
+            case "Car": return new Car(make, model, year, 4); // Default seats
+            case "Motorcycle": return new Motorcycle(make, model, year, false); // Default no sidecar
+            case "Truck": return new Truck(make, model, year, 1000.0); // Default capacity
+            case "SportCar": return new SportCar(make, model, year, 4, 300, false); // Default values
+            default: return null;
+        }
+    }
+    private void loadCustomers() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("customers.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length != 2) continue;
+
+                int id = Integer.parseInt(parts[0]);
+                String name = parts[1];
+                customers.add(new Customer(id, name));
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No existing customer data found.");
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error loading customers: " + e.getMessage());
+        }
+    }
+    private void loadRentalRecords() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("rentalrecords.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length != 5) continue;
+
+                String plate = parts[0];
+                String customerName = parts[1];
+                LocalDate date = LocalDate.parse(parts[2]);
+                double amount = Double.parseDouble(parts[3]);
+                String type = parts[4];
+
+                Vehicle vehicle = findVehicleByPlate(plate);
+                Customer customer = findCustomerByName(customerName);
+                if (vehicle != null && customer != null) {
+                    rentalHistory.addRecord(new RentalRecord(vehicle, customer, date, amount, type));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No existing rental history found.");
+        } catch (IOException | DateTimeParseException | NumberFormatException e) {
+            System.err.println("Error loading rental history: " + e.getMessage());
+        }
+    }
+
     public static RentalSystem getInstance() {
         if (instance == null) {
             instance = new RentalSystem();

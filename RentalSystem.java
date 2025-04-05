@@ -126,14 +126,37 @@ public class RentalSystem {
             e.printStackTrace();
         }
     }
-    public void addVehicle(Vehicle vehicle) {
+    public boolean addVehicle(Vehicle vehicle) {
+        String plate = vehicle.getLicensePlate();
+        if (plate == null) {
+            for (Vehicle v : vehicles) {
+                if (v.getLicensePlate() == null) {
+                    System.out.println("Error: Duplicate null license plate.");
+                    return false;
+                }
+            }
+        } else {
+            Vehicle existing = findVehicleByPlate(plate);
+            if (existing != null) {
+                System.out.println("Error: License plate " + plate + " already exists.");
+                return false;
+            }
+        }
         vehicles.add(vehicle);
         saveVehicle(vehicle);
+        return true;
     }
 
-    public void addCustomer(Customer customer) {
+    public boolean addCustomer(Customer customer) {
+        int id = customer.getCustomerId();
+        Customer existing = findCustomerById(String.valueOf(id));
+        if (existing != null) {
+            System.out.println("Error: Customer ID " + id + " already exists.");
+            return false;
+        }
         customers.add(customer);
         saveCustomer(customer);
+        return true;
     }
     private void saveVehicle(Vehicle vehicle) {
         try (PrintWriter out = new PrintWriter(new FileWriter("vehicles.txt", true))) {

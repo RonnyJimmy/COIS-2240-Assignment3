@@ -46,8 +46,8 @@ public class VehicleRentalApp {
                     
                     if (vehicle != null){
 	                    vehicle.setLicensePlate(plate);
-	                    rentalSystem.addVehicle(vehicle);
-	                    System.out.println("Vehicle added.");
+	                    boolean added = rentalSystem.addVehicle(vehicle);
+	                    System.out.println(added ? "Vehicle added." : "Vehicle not added (duplicate plate).");
                     }
                     else {
 	                    System.out.println("Vehicle not added.");
@@ -60,8 +60,9 @@ public class VehicleRentalApp {
                     System.out.print("Enter name: ");
                     String cname = scanner.nextLine();
 
-                    rentalSystem.addCustomer(new Customer(Integer.parseInt(cid), cname));
-                    System.out.println("Customer added.");
+                    Customer newCustomer = new Customer(Integer.parseInt(cid), cname);
+                    boolean added = rentalSystem.addCustomer(newCustomer);
+                    System.out.println(added ? "Customer added." : "Customer not added (duplicate ID).");
                     break;
                     
                 case 3:

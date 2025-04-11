@@ -2,6 +2,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
+
+
 
 public class VehicleRentalTest {
     
@@ -82,7 +86,7 @@ public class VehicleRentalTest {
         assertEquals(Vehicle.VehicleStatus.RENTED, vehicle.getStatus(), 
             "Vehicle status should be RENTED after successful rental");
         
-    boolean secondRentAttempt = rentalSystem.rentVehicle(vehicle, customer, LocalDate.now(), 100.0);
+        boolean secondRentAttempt = rentalSystem.rentVehicle(vehicle, customer, LocalDate.now(), 100.0);
         assertFalse(secondRentAttempt, "Second rental of the same vehicle should fail");
        
         boolean returnSuccess = rentalSystem.returnVehicle(vehicle, customer, LocalDate.now(), 0.0);
@@ -93,5 +97,25 @@ public class VehicleRentalTest {
         boolean secondReturnAttempt = rentalSystem.returnVehicle(vehicle, customer, LocalDate.now(), 0.0);
         assertFalse(secondReturnAttempt, "Returning an already returned vehicle should fail");
     } 
-  }
+    
+     @Test
+    void testSingletonRentalSystem() throws Exception {
+      
+        Constructor <RentalSystem>  constructor = RentalSystem.class.getDeclaredConstructor();
+        
+        int modifiers = constructor.getModifiers();
+        assertTrue(Modifier.isPrivate(modifiers), 
+            "RentalSystem constructor should be private to enforce Singleton pattern");
+        
+        RentalSystem instance1 = RentalSystem.getInstance();
+        assertNotNull(instance1, "getInstance() should return a non-null RentalSystem instance");
+        
+        RentalSystem instance2 = RentalSystem.getInstance();
+        assertSame(instance1, instance2, 
+            "Multiple calls to getInstance() should return the same RentalSystem instance");
+    }
+}
+  
+
+
     

@@ -84,9 +84,12 @@ public class VehicleRentalApp {
                     Vehicle vehicleToRent = rentalSystem.findVehicleByPlate(rentPlate);
                     Customer customerToRent = rentalSystem.findCustomerById(cidRent);
 
-                    if (vehicleToRent == null || customerToRent == null) {
-                        System.out.println("Vehicle or customer not found.");
-                        break;
+                    boolean rentSuccess = rentalSystem.rentVehicle(vehicleToRent, customerToRent, LocalDate.now(), rentAmount);
+                    if (rentSuccess) {
+                        System.out.println("Vehicle rented successfully.");
+                    } else {
+                        System.out.println("Failed to rent vehicle.");
+                
                     }
 
                     rentalSystem.rentVehicle(vehicleToRent, customerToRent, LocalDate.now(), rentAmount);
@@ -112,9 +115,12 @@ public class VehicleRentalApp {
                     Vehicle vehicleToReturn = rentalSystem.findVehicleByPlate(returnPlate);
                     Customer customerToReturn = rentalSystem.findCustomerById(cidReturn);
 
-                    if (vehicleToReturn == null || customerToReturn == null) {
-                        System.out.println("Vehicle or customer not found.");
-                        break;
+                    boolean returnSuccess = rentalSystem.returnVehicle(vehicleToReturn, customerToReturn, LocalDate.now(), returnFees);
+                    if (returnSuccess) {
+                        System.out.println("Vehicle returned successfully.");
+                    } else {
+                        System.out.println("Failed to return vehicle.");
+                    
                     }
 
                     rentalSystem.returnVehicle(vehicleToReturn, customerToReturn, LocalDate.now(), returnFees);

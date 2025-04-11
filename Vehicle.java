@@ -8,7 +8,7 @@ public abstract class Vehicle {
     public enum VehicleStatus { AVAILABLE, RESERVED, RENTED, MAINTENANCE, OUTOFSERVICE }
 
     public Vehicle(String make, String model, int year) {
-    	this.make = capitalize(make); 
+        this.make = capitalize(make); 
         this.model = capitalize(model); 
         this.year = year;
         this.status = VehicleStatus.AVAILABLE;
@@ -25,13 +25,30 @@ public abstract class Vehicle {
     public Vehicle() {
         this(null, null, 0);
     }
+    
+    public boolean isValidPlate(String plate) {
+        if (plate == null || plate.isEmpty()) {
+            return false;
+        }
+  
+        return plate.matches("[A-Za-z]{3}[0-9]{3}");
+    }
 
     public void setLicensePlate(String plate) {
-        this.licensePlate = plate == null ? null : plate.toUpperCase();
+        if (plate == null) {
+            this.licensePlate = null;
+            return;
+        }
+        
+        String upperPlate = plate.toUpperCase();
+        if (!isValidPlate(upperPlate)) {
+            throw new IllegalArgumentException("Invalid license plate format: " + plate);
+        }
+        this.licensePlate = upperPlate;
     }
 
     public void setStatus(VehicleStatus status) {
-    	this.status = status;
+        this.status = status;
     }
 
     public String getLicensePlate() { return licensePlate; }
@@ -47,5 +64,4 @@ public abstract class Vehicle {
     public String getInfo() {
         return "| " + licensePlate + " | " + make + " | " + model + " | " + year + " | " + status + " |";
     }
-
 }

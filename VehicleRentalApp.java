@@ -44,15 +44,14 @@ public class VehicleRentalApp {
 		            	vehicle = null;
 		            }
                     
-                    if (vehicle != null){
-	                    vehicle.setLicensePlate(plate);
-	                    boolean added = rentalSystem.addVehicle(vehicle);
-	                    System.out.println(added ? "Vehicle added." : "Vehicle not added (duplicate plate).");
+                    try {
+                        vehicle.setLicensePlate(plate);
+                        boolean added = rentalSystem.addVehicle(vehicle);
+                        System.out.println(added ? "Vehicle added." : "Vehicle not added (duplicate plate).");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
+                        System.out.println("Vehicle not added due to invalid license plate format.");
                     }
-                    else {
-	                    System.out.println("Vehicle not added.");
-                    }
-                    break;
 
                 case 2:
                     System.out.print("Enter customer ID: ");
